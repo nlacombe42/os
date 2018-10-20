@@ -1,0 +1,32 @@
+mkdir -p bin
+
+nasm -f elf32 -o ./bin/start.o ./src/asm/startx86.asm
+
+# removed optimization (option -O) because of miscompilation. (problem in time_wait()) (-fcompare-elim ???)
+
+gccArgs='-I ./src/include/ -m32 -Wall -fstrength-reduce -nostdinc -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-exceptions -fno-stack-protector -fomit-frame-pointer -finline-functions -c'
+
+gcc $gccArgs -o ./bin/main.o ./src/kernel/main.c
+gcc $gccArgs -o ./bin/general.o ./src/kernel/general.c
+gcc $gccArgs -o ./bin/scrn.o ./src/kernel/scrn.c
+gcc $gccArgs -o ./bin/hal.o ./src/hal/hal.c
+gcc $gccArgs -o ./bin/hal_idt.o ./src/hal/idt.c
+gcc $gccArgs -o ./bin/hal_irq.o ./src/hal/irq.c
+gcc $gccArgs -o ./bin/hal_isrs.o ./src/hal/isrs.c
+gcc $gccArgs -o ./bin/kb.o ./src/kernel/kb.c
+gcc $gccArgs -o ./bin/time.o ./src/kernel/time.c
+gcc $gccArgs -o ./bin/mem.o ./src/kernel/mem.c
+
+ld -m elf_i386 -A x86 -T ./src/link.ld -o ./bin/kernel \
+ ./bin/start.o \
+ ./bin/main.o \
+ ./bin/general.o \
+ ./bin/hal.o \
+ ./bin/hal_idt.o \
+ ./bin/hal_irq.o \
+ ./bin/hal_isrs.o \
+ ./bin/kb.o \
+ ./bin/time.o \
+ ./bin/mem.o \
+ ./bin/scrn.o
+
