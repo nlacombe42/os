@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mkdir -p bin
 
 nasm -f elf32 -o ./bin/start.o ./src/asm/startx86.asm
